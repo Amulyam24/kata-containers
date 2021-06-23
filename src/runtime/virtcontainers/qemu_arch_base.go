@@ -145,7 +145,7 @@ type qemuArch interface {
 	appendPVPanicDevice(devices []govmmQemu.Device) ([]govmmQemu.Device, error)
 
 	// checks for available guest protections
-	availableGuestProtections() (protections []string)
+	AvailableGuestProtections() (protections []string)
 
 	// append protection device.
 	// This implementation is architecture specific, some archs may need
