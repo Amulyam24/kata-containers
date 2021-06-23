@@ -158,7 +158,7 @@ func (q *qemuPPC64le) enableProtection() error {
 	}
 }
 
-func (q *qemuPPC64le) availableGuestProtections() (protections []string) {
+func (q *qemuPPC64le) AvailableGuestProtections() (protections []string) {
 	pef := protectionsToString(pefProtection)
 	protections = append(protections, pef)
 	return protections

@@ -194,7 +194,7 @@ func getRuntimeInfo(configFile string, config oci.RuntimeConfig) RuntimeInfo {
 		SandboxCgroupOnly:   config.SandboxCgroupOnly,
 		Experimental:        config.Experimental,
 		DisableGuestSeccomp: config.DisableGuestSeccomp,
-		Protections:         vc.availableGuestProtections(),
+		Protections:         vc.AvailableGuestProtections(),
 	}
 }
 

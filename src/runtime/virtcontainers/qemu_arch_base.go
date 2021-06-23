@@ -834,7 +834,7 @@ func (q *qemuArchBase) appendPCIeRootPortDevice(devices []govmmQemu.Device, numb
 	return genericAppendPCIeRootPort(devices, number, q.qemuMachine.Type)
 }
 
-func (q *qemuArchBase) availableGuestProtections() (protections []string) {
+func (q *qemuArchBase) AvailableGuestProtections() (protections []string) {
 	virtLog.WithField("arch", runtime.GOARCH).Info("No available guest protection for this architecture")
 	return genericAvailableGuestProtections()
 }
