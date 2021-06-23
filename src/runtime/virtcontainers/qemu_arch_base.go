@@ -177,8 +177,24 @@ const (
 	seProtection
 )
 
-var protections = []string{
+/*var protections = []string{
 	"noneProtection", "tdxProtection", "sevProtection", "pefProtection", "seProtection",
+}*/
+
+func protectionsToString(protection guestProtection) string {
+	switch protection {
+	case tdxProtection:
+		return "TDX Protection"
+	case sevProtection:
+		return "SEV Protections"
+	case pefProtection:
+		return "PEF Protection"
+	case seProtection:
+		return "Secure Execution Protection"
+	default:
+		return "No Protection"
+	}
+
 }
 
 type qemuArchBase struct {
