@@ -7,7 +7,6 @@ package virtcontainers
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	govmmQemu "github.com/kata-containers/govmm/qemu"
@@ -161,7 +160,7 @@ func (q *qemuPPC64le) enableProtection() error {
 
 func (q *qemuPPC64le) availableGuestProtections() (protections []string) {
 	pef := protectionsToString(pefProtection)
-	protections = strings.Join(pef, ",")
+	protections = append(protections, pef)
 	return protections
 }
 
