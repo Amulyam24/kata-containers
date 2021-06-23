@@ -160,7 +160,8 @@ func (q *qemuPPC64le) enableProtection() error {
 }
 
 func (q *qemuPPC64le) availableGuestProtections() (protections []string) {
-	protections := strings.Join(protectionsToString(pefProtection), ",")
+	pef := protectionsToString(pefProtection)
+	protections = strings.Join(pef, ",")
 	return protections
 }
 
