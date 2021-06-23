@@ -144,6 +144,9 @@ type qemuArch interface {
 	// append pvpanic device
 	appendPVPanicDevice(devices []govmmQemu.Device) ([]govmmQemu.Device, error)
 
+	// checks for available guest protections
+	availableGuestProtections() (protections []string)
+
 	// append protection device.
 	// This implementation is architecture specific, some archs may need
 	// a firmware, returns a string containing the path to the firmware that should
@@ -173,6 +176,10 @@ const (
 	// https://www.kernel.org/doc/html/latest/virt/kvm/s390-pv.html
 	seProtection
 )
+
+var protections = []string{
+	"noneProtection", "tdxProtection", "sevProtection", "pefProtection", "seProtection",
+}
 
 type qemuArchBase struct {
 	memoryOffset         uint64
@@ -809,6 +816,11 @@ func (q *qemuArchBase) addBridge(b types.Bridge) {
 // appendPCIeRootPortDevice appends to devices the given pcie-root-port
 func (q *qemuArchBase) appendPCIeRootPortDevice(devices []govmmQemu.Device, number uint32) []govmmQemu.Device {
 	return genericAppendPCIeRootPort(devices, number, q.qemuMachine.Type)
+}
+
+func (q *qemuArchBase) availableGuestProtections() (protections []string) {
+	virtLog.WithField("arch", runtime.GOARCH).Info("No available guest protection for this architecture")
+	return genericAvailableGuestProtections()
 }
 
 // appendIOMMU appends a virtual IOMMU device

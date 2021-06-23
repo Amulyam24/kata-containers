@@ -81,6 +81,7 @@ type RuntimeInfo struct {
 	SandboxCgroupOnly   bool
 	Experimental        []exp.Feature
 	Path                string
+	Protection          string
 }
 
 type VersionInfo struct {
@@ -193,6 +194,7 @@ func getRuntimeInfo(configFile string, config oci.RuntimeConfig) RuntimeInfo {
 		SandboxCgroupOnly:   config.SandboxCgroupOnly,
 		Experimental:        config.Experimental,
 		DisableGuestSeccomp: config.DisableGuestSeccomp,
+		Protection:          vc.availableGuestProtections(),
 	}
 }
 

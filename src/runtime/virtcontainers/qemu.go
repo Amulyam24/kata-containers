@@ -2177,6 +2177,8 @@ func genericAppendPCIeRootPort(devices []govmmQemu.Device, number uint32, machin
 	return devices
 }
 
+func genericAvailableGuestProtections() (protections []string) { return }
+
 func (q *qemu) getThreadIDs(ctx context.Context) (vcpuThreadIDs, error) {
 	span, _ := q.trace(ctx, "getThreadIDs")
 	defer span.End()

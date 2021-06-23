@@ -158,6 +158,10 @@ func (q *qemuPPC64le) enableProtection() error {
 	}
 }
 
+func (q *qemuPPC64le) availableGuestProtections() (protections []string) {
+	return protections[pefProtection]
+}
+
 // append protection device
 func (q *qemuPPC64le) appendProtectionDevice(devices []govmmQemu.Device, firmware string) ([]govmmQemu.Device, string, error) {
 	switch q.protection {
