@@ -437,8 +437,7 @@ setup_kernel() {
 	[ -n "${hypervisor_target}" ] || hypervisor_target="kvm"
 	[ -n "${kernel_config_path}" ] || kernel_config_path=$(get_default_kernel_config "${kernel_version}" "${hypervisor_target}" "${arch_target}" "${kernel_path}")
 
-	if [ "${measured_rootfs}" == "true" ]; then
-		check_initramfs_or_die
+	if [ "${measured_rootfs}" == "true" ] && [ -f "${default_initramfs}" ]; then
 		info "Copying initramfs from: ${default_initramfs}"
 		cp "${default_initramfs}" ./
 	fi

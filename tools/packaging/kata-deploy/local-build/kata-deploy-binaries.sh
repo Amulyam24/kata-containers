@@ -319,6 +319,14 @@ install_kernel_helper() {
 
 	install_cached_kernel_tarball_component ${kernel_name} ${module_dir} && return 0
 
+	if [ "${MEASURED_ROOTFS}" == "yes" ]; then
+		info "build initramfs for cc kernel"
+		"${initramfs_builder}"
+		# Turn on the flag to build the kernel with support to
+		# measured rootfs.
+		extra_cmd+=" -m"
+	fi
+
 	info "build ${kernel_name}"
 	info "Kernel version ${kernel_version}"
 	DESTDIR="${destdir}" PREFIX="${prefix}" "${kernel_builder}" -v "${kernel_version}" ${extra_cmd}
