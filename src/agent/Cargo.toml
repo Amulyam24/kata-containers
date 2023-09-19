@@ -74,12 +74,10 @@ clap = { version = "3.0.1", features = ["derive"] }
 openssl = { version = "0.10.38", features = ["vendored"] }
 
 # Image pull/decrypt
-image-rs = { git = "https://github.com/confidential-containers/guest-components", rev = "e9944577d1f61060c51d48890359a5467d519a29", default-features = false, features = [
-    "kata-cc-native-tls", "verity",
-] }
+image-rs = { git = "https://github.com/Amulyam24/image-rs", branch = "ppc-fix", default-features = false, features = ["kata-cc-native-tls"] }
 
 [patch.crates-io]
-oci-distribution = { git = "https://github.com/krustlet/oci-distribution.git", rev = "f44124c" }
+oci-distribution = { git = "https://github.com/Amulyam24/oci-distribution.git", branch = "ppc64le" }
 
 [dev-dependencies]
 tempfile = "3.1.0"
