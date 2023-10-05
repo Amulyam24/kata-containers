@@ -25,5 +25,6 @@ RUN apt-get update && \
 	    rsync \
 	    cpio \
 	    patch && \
-    if [ "${ARCH}" != "$(uname -m)" ]; then apt-get install --no-install-recommends -y gcc-"${ARCH}"-linux-gnu binutils-"${ARCH}"-linux-gnu; fi && \
+    GCC_ARCH="${ARCH}" && if [ "${ARCH}" = "ppc64le" ]; then GCC_ARCH="powerpc64le"; fi && \
+	if [ "${ARCH}" != "$(uname -m)" ]; then apt-get install --no-install-recommends -y gcc-"${GCC_ARCH}"-linux-gnu binutils-"${GCC_ARCH}"-linux-gnu; fi && \
     apt-get clean && apt-get autoclean && rm -rf /var/lib/apt/lists/*

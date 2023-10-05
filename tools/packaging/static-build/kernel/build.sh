@@ -25,9 +25,9 @@ if [ "${CROSS_BUILD}" == "true" ]; then
        container_image="${container_image}-${ARCH}-cross-build"
        # Need to build a s390x image due to an issue at
        # https://github.com/kata-containers/kata-containers/pull/6586#issuecomment-1603189242
-       if [ ${ARCH} == "s390x" ]; then
+       if [ ${ARCH} == "s390x" ] || [ ${ARCH} == "ppc64le" ]; then
                BUILDX="buildx"
-               PLATFORM="--platform=linux/s390x"
+               PLATFORM="--platform=linux/${ARCH}"
        fi
 fi
 
