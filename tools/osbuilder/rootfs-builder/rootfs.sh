@@ -28,6 +28,7 @@ LIBC=${LIBC:-musl}
 SECCOMP=${SECCOMP:-"yes"}
 SELINUX=${SELINUX:-"no"}
 AGENT_POLICY=${AGENT_POLICY:-no}
+STRIP="strip"
 
 lib_file="${script_dir}/../scripts/lib.sh"
 source "$lib_file"
@@ -40,7 +41,12 @@ TARGET_ARCH=${TARGET_ARCH:-$(uname -m)}
 ARCH=${ARCH:-$(uname -m)}
 [ "${TARGET_ARCH}" == "aarch64" ] && TARGET_ARCH=arm64
 TARGET_OS=${TARGET_OS:-linux}
-[ "${CROSS_BUILD}" == "true" ] && BUILDX=buildx && PLATFORM="--platform=${TARGET_OS}/${TARGET_ARCH}"
+if [ "${CROSS_BUILD}" == "true" ]; then
+	BUILDX=buildx
+	PLATFORM="--platform=${TARGET_OS}/${TARGET_ARCH}"
+	[ ${ARCH} == "ppc64le" ] && GCC_ARCH=powerpc64le || GCC_ARCH=${ARCH}
+	STRIP="${GCC_ARCH}-linux-gnu-strip" 
+fi
 
 handle_error() {
 	local exit_code="${?}"
@@ -408,6 +414,7 @@ build_rootfs_distro()
 		# apt sync scans all possible fds in order to close them, incredibly slow on VMs
 		engine_run_args+=" --ulimit nofile=262144:262144"
 		engine_run_args+=" --runtime ${DOCKER_RUNTIME}"
+		[ "${CROSS_BUILD}" == "true" ] && engine_run_args+=" --env CROSS_BUILD=${CROSS_BUILD}"
 
 		if [ -z "${AGENT_SOURCE_BIN}" ] ; then
 			engine_run_args+=" -v ${GOPATH_LOCAL}:${GOPATH_LOCAL} --env GOPATH=${GOPATH_LOCAL}"
@@ -619,7 +626,7 @@ EOF
 		make clean
 		make LIBC=${LIBC} INIT=${AGENT_INIT} SECCOMP=${SECCOMP} AGENT_POLICY=${AGENT_POLICY}
 		make install DESTDIR="${ROOTFS_DIR}" LIBC=${LIBC} INIT=${AGENT_INIT}
-		strip ${ROOTFS_DIR}/usr/bin/kata-agent
+		${STRIP} ${ROOTFS_DIR}/usr/bin/kata-agent
 		if [ "${SECCOMP}" == "yes" ]; then
 			rm -rf "${libseccomp_install_dir}" "${gperf_install_dir}"
 		fi
@@ -664,7 +671,7 @@ EOF
 			local opa_bin="${ROOTFS_DIR}${opa_bin_dir}/opa"
 			info "Installing OPA binary to ${opa_bin}"
 			install -D -o root -g root -m 0755 opa -T "${opa_bin}"
-			strip ${ROOTFS_DIR}${opa_bin_dir}/opa
+			${STRIP} ${ROOTFS_DIR}${opa_bin_dir}/opa
 		else
 			info "OPA binary already exists in ${opa_bin_dir}"
 		fi
