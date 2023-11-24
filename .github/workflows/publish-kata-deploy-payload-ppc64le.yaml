@@ -35,12 +35,6 @@ jobs:
           ref: ${{ inputs.commit-hash }}
           fetch-depth: 0
 
-      # - name: Rebase atop of the latest target branch
-      #   run: |
-      #     ./tests/git-helper.sh "rebase-atop-of-the-latest-target-branch"
-      #   env:
-      #     TARGET_BRANCH: ${{ inputs.target-branch }}
-
       - name: get-kata-tarball
         uses: actions/download-artifact@v3
         with:
