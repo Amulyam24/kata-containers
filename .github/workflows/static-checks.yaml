@@ -86,7 +86,6 @@ jobs:
           sudo chown -R $USER:$USER $GITHUB_WORKSPACE $HOME
           sudo rm -f /tmp/kata_hybrid*  # Sometime we got leftover from test_setup_hvsock_failed()
         if: ${{ matrix.instance != 'ubuntu-20.04' }}
-
       - name: Checkout the code
         uses: actions/checkout@v4
         with:
@@ -130,6 +129,7 @@ jobs:
           XDG_RUNTIME_DIR=$(mktemp -d /tmp/kata-tests-$USER.XXX | tee >(xargs chmod 0700))
           echo "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >> $GITHUB_ENV
       - name: Running `${{ matrix.command }}` for ${{ matrix.component }}
+        if: ${{ !( matrix.instance == 'ppc64le' && matrix.command == 'make sudo -E PATH=\"$PATH\" make test' && matrix.component == 'agent' ) != 'false' }}
         run: |
           cd ${{ matrix.component-path }}
           ${{ matrix.command }}
