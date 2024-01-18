@@ -67,4 +67,4 @@ jobs:
         run: |
           ./tools/packaging/kata-deploy/local-build/kata-deploy-build-and-upload-payload.sh \
           $(pwd)/kata-static.tar.xz \
-          ${{ inputs.registry }}/${{ inputs.repo }} ${{ inputs.tag }}
+          ghcr.io/amulyam24/kata-deploy-ci ${{ inputs.tag }}
