@@ -34,7 +34,7 @@ jobs:
     runs-on: ppc64le
     env:
       DOCKER_REGISTRY: ${{ inputs.registry }}
-      DOCKER_REPO: ${{ inputs.repo }}
+      DOCKER_REPO: amulyam24
       DOCKER_TAG: ${{ inputs.tag }}
       PR_NUMBER: ${{ inputs.pr-number }}
       KATA_HYPERVISOR: ${{ matrix.vmm }}
@@ -42,11 +42,9 @@ jobs:
       USING_NFD: "false"
       TARGET_ARCH: "ppc64le"
     steps:
-    #   - name: Prepare the self-hosted runner
-    #     run: ${HOME}/scripts/prepare_runner.sh
+      - name: Prepare the self-hosted runner
+        run: ${HOME}/scripts/prepare_runner.sh
 
-      - name: Set the KUBECONFIG for kubeadm
-        run: export KUBECONFIG="$HOME/.kube/config"
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.commit-hash }}
@@ -58,6 +56,12 @@ jobs:
         env:
           TARGET_BRANCH: ${{ inputs.target-branch }}
 
+      - name: Prepare the runner for k8s cluster creation
+        run: bash ${HOME}/scripts/k8s_cluster_cleanup.sh
+    
+      - name: Create k8s cluster using kubeadm
+        run: bash ${HOME}/scripts/k8s_cluster_create.sh
+        
       - name: Deploy Kata
         timeout-minutes: 10
         run: bash tests/integration/kubernetes/gha-run.sh deploy-kata-kubeadm
@@ -66,4 +70,5 @@ jobs:
         timeout-minutes: 30
         run: bash tests/integration/kubernetes/gha-run.sh run-tests
 
-
+      - name: Delete cluster
+        run: bash ${HOME}/scripts/k8s_cluster_cleanup.sh

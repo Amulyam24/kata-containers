@@ -14,7 +14,7 @@ source "${kubernetes_dir}/../../gha-run-k8s-common.sh"
 tools_dir="${repo_root_dir}/tools"
 
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-quay.io}
-DOCKER_REPO=${DOCKER_REPO:-kata-containers/kata-deploy-ci}
+DOCKER_REPO="amulyam24/kata-deploy-ci"
 DOCKER_TAG=${DOCKER_TAG:-kata-containers-latest}
 KATA_DEPLOY_WAIT_TIMEOUT=${KATA_DEPLOY_WAIT_TIMEOUT:-10m}
 KATA_HYPERVISOR=${KATA_HYPERVISOR:-qemu}
@@ -266,6 +266,7 @@ function main() {
 		deploy-kata-tdx) deploy_kata "tdx" ;;
 		deploy-kata-garm) deploy_kata "garm" ;;
 		deploy-kata-zvsi) deploy_kata "zvsi" ;;
+		deploy-kata-kubeadm) deploy_kata "kubeadm" ;;
 		run-tests) run_tests ;;
 		run-tests-kcli) run_tests "kcli" ;;
 		cleanup-kcli) cleanup "kcli" ;;
