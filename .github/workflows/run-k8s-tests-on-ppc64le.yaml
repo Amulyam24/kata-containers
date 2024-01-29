@@ -70,5 +70,5 @@ jobs:
         timeout-minutes: 30
         run: bash tests/integration/kubernetes/gha-run.sh run-tests
 
-      - name: Delete cluster
+      - name: Cleanup cluster
         run: bash ${HOME}/scripts/k8s_cluster_cleanup.sh
