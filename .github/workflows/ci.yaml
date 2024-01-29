@@ -69,7 +69,7 @@ jobs:
     with:
       tarball-suffix: -${{ inputs.tag }}
       registry: ghcr.io
-      repo: ${{ github.repository_owner }}/kata-deploy-ci
+      repo: amulyam24/kata-deploy-ci
       tag: ${{ inputs.tag }}-ppc64le
       commit-hash: ${{ inputs.commit-hash }}
       target-branch: ${{ inputs.target-branch }}
@@ -202,6 +202,17 @@ jobs:
       commit-hash: ${{ inputs.commit-hash }}
       pr-number: ${{ inputs.pr-number }}
       target-branch: ${{ inputs.target-branch }}
+      
+  run-k8s-tests-on-ppc64le:
+    needs: publish-kata-deploy-payload-ppc64le
+    uses: ./.github/workflows/run-k8s-tests-on-ppc64le.yaml
+    with:
+      registry: ghcr.io
+      repo: ${{ github.repository_owner }}/kata-deploy-ci
+      tag: ${{ inputs.tag }}-ppc64le
+      commit-hash: ${{ inputs.commit-hash }}
+      pr-number: ${{ inputs.pr-number }}
+      target-branch: ${{ inputs.target-branch }}
 
   run-metrics-tests:
     needs: build-kata-static-tarball-amd64
@@ -222,14 +233,6 @@ jobs:
   run-cri-containerd-tests-s390x:
     needs: build-kata-static-tarball-s390x
     uses: ./.github/workflows/run-cri-containerd-tests-s390x.yaml
-    with:
-      tarball-suffix: -${{ inputs.tag }}
-      commit-hash: ${{ inputs.commit-hash }}
-      target-branch: ${{ inputs.target-branch }}
-
-  run-cri-containerd-tests-ppc64le:
-    needs: build-kata-static-tarball-ppc64le
-    uses: ./.github/workflows/run-cri-containerd-tests-ppc64le.yaml
     with:
       tarball-suffix: -${{ inputs.tag }}
       commit-hash: ${{ inputs.commit-hash }}
