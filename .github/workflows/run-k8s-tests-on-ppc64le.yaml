@@ -43,7 +43,9 @@ jobs:
       TARGET_ARCH: "ppc64le"
     steps:
       - name: Prepare the self-hosted runner
-        run: ${HOME}/scripts/prepare_runner.sh
+        run: | 
+          bash ${HOME}/scripts/prepare_runner.sh
+          sudo rm -rf $GITHUB_WORKSPACE/*
 
       - uses: actions/checkout@v4
         with:
@@ -55,6 +57,11 @@ jobs:
           ./tests/git-helper.sh "rebase-atop-of-the-latest-target-branch"
         env:
           TARGET_BRANCH: ${{ inputs.target-branch }}
+
+      - name: Install golang
+        run: |
+          ./tests/install_go.sh -f -p
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
 
       - name: Prepare the runner for k8s cluster creation
         run: bash ${HOME}/scripts/k8s_cluster_cleanup.sh
