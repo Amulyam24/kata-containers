@@ -1,25 +1,7 @@
 name: CI | Build kata-static tarball for ppc64le
 on:
-  workflow_call:
-    inputs:
-      stage:
-        required: false
-        type: string
-        default: test
-      tarball-suffix:
-        required: false
-        type: string
-      push-to-registry:
-        required: false
-        type: string
-        default: no
-      commit-hash:
-        required: false
-        type: string
-      target-branch:
-        required: false
-        type: string
-        default: ""
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   build-asset:
