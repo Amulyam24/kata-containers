@@ -1077,6 +1077,84 @@ impl MemoryInfo {
         if self.default_maxmemory == 0 || u64::from(self.default_maxmemory) > host_memory {
             self.default_maxmemory = host_memory as u32;
         }
+
+        // Apply PowerPC64 memory alignment
+        #[cfg(all(target_arch = "powerpc64", target_endian = "little"))]
+        self.adjust_ppc64_memory_alignment()?;
+
+        Ok(())
+    }
+
+    /// Adjusts memory values for PowerPC64 little-endian systems to meet
+    /// QEMU's 256MB block size alignment requirement.
+    ///
+    /// Ensures default_memory is at least 1024MB and both default_memory
+    /// and default_maxmemory are aligned to 256MB boundaries.
+    /// Returns an error if aligned values would be equal.
+    #[cfg(all(target_arch = "powerpc64", target_endian = "little"))]
+    fn adjust_ppc64_memory_alignment(&mut self) -> Result<()> {
+        const PPC64_MEM_BLOCK_SIZE: u64 = 256;
+        const MIN_MEMORY_MB: u64 = 1024;
+
+        fn align_memory(value: u64) -> u64 {
+            (value / PPC64_MEM_BLOCK_SIZE) * PPC64_MEM_BLOCK_SIZE
+        }
+
+        let mut mem_size = u64::from(self.default_memory);
+        let max_mem_size = u64::from(self.default_maxmemory);
+
+        // Ensure minimum memory size
+        if mem_size < MIN_MEMORY_MB {
+            info!(
+                sl!(),
+                "PowerPC: Increasing default_memory from {}MB to minimum {}MB",
+                mem_size,
+                MIN_MEMORY_MB
+            );
+            mem_size = MIN_MEMORY_MB;
+        }
+
+        // Align both values to 256MB boundaries
+        let aligned_mem = align_memory(mem_size);
+        let aligned_max_mem = align_memory(max_mem_size);
+
+        if aligned_mem != mem_size {
+            info!(
+                sl!(),
+                "PowerPC: Aligned default_memory from {}MB to {}MB",
+                mem_size,
+                aligned_mem
+            );
+        }
+
+        if aligned_max_mem != max_mem_size {
+            info!(
+                sl!(),
+                "PowerPC: Aligned default_maxmemory from {}MB to {}MB",
+                max_mem_size,
+                aligned_max_mem
+            );
+        }
+
+        // Check if aligned values are equal
+        if aligned_max_mem != 0 && aligned_max_mem <= aligned_mem {
+            return Err(std::io::Error::other(format!(
+                "PowerPC: default_maxmemory ({}MB) <= default_memory ({}MB) after alignment. \
+                Requires maxmemory > memory. Please increase default_maxmemory.",
+                aligned_max_mem, aligned_mem
+            )));
+        }
+        
+        info!(
+            sl!(),
+            "PowerPC: Memory alignment applied - memory: {}MB, max_memory: {}MB",
+            aligned_mem,
+            aligned_max_mem
+        );
+
+        self.default_memory = aligned_mem as u32;
+        self.default_maxmemory = aligned_max_mem as u32;
+
         Ok(())
     }
 
@@ -1946,6 +2024,66 @@ mod tests {
                 "test[{}] default_maxvcpus",
                 tc.desc
             );
+        }
+    }
+
+    #[test]
+    #[cfg(all(target_arch = "powerpc64", target_endian = "little"))]
+    fn test_adjust_ppc64_memory_alignment() {
+        struct TestData {
+            desc: &'static str,
+            input_memory: u32,
+            input_maxmemory: u32,
+            expect_error: bool,
+        }
+
+        let tests = vec![
+            TestData {
+                desc: "Memory below 1024MB should be increased to 1024MB",
+                input_memory: 512,
+                input_maxmemory: 2048,
+                expect_error: false,
+            },
+            TestData {
+                desc: "Already aligned values should remain unchanged",
+                input_memory: 1024,
+                input_maxmemory: 2048,
+                expect_error: false,
+            },
+            TestData {
+                desc: "Unaligned values should round down to nearest multiple of 256MB",
+                input_memory: 1100,
+                input_maxmemory: 2100,
+                expect_error: false,
+            },
+            TestData {
+                desc: "Equal memory values after alignment should return error",
+                input_memory: 1024,
+                input_maxmemory: 1100,
+                expect_error: true,
+            },
+            TestData {
+                desc: "Maxmemory less than memory after alignment should return error",
+                input_memory: 2048,
+                input_maxmemory: 1500,
+                expect_error: true,
+            },
+        ];
+
+        for tc in tests {
+            let mut mem = MemoryInfo {
+                default_memory: tc.input_memory,
+                default_maxmemory: tc.input_maxmemory,
+                ..Default::default()
+            };
+
+            let result = mem.adjust_ppc64_memory_alignment();
+            
+            if tc.expect_error {
+                assert!(result.is_err(), "test[{}]", tc.desc);
+            } else {
+                assert!(result.is_ok(), "test[{}]: {:?}", tc.desc, result.err());
+            }
         }
     }
 }
